@@ -1,0 +1,192 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPL 2026 | RCB vs SRH 3D</title>
+    <style>
+        :root {
+            --rcb-red: #ff3131;
+            --srh-orange: #ff822a;
+            --ipl-gold: #efbf38;
+            --wood: #dec095;
+        }
+
+        body {
+            background: #020205;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1200px;
+        }
+
+        /* 3D Scene Wrapper */
+        .scene {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-style: preserve-3d;
+        }
+
+        /* 3D CRICKET BAT CONSTRUCTION */
+        .bat-3d {
+            position: relative;
+            width: 60px;
+            height: 300px;
+            transform-style: preserve-3d;
+            transform: rotateZ(-15deg) rotateY(20deg);
+            transition: transform 0.1s ease-out;
+            cursor: pointer;
+        }
+
+        .bat-face {
+            position: absolute;
+            background: var(--wood);
+            border: 1px solid rgba(0,0,0,0.2);
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.1);
+        }
+
+        .front { width: 60px; height: 240px; transform: translateZ(12px); bottom: 0; }
+        .back  { width: 60px; height: 240px; transform: translateZ(-12px); bottom: 0; }
+        .side-l { width: 24px; height: 240px; transform: translateX(-12px) rotateY(90deg); bottom: 0; background: #c5a67b; }
+        .side-r { width: 24px; height: 240px; transform: translateX(48px) rotateY(90deg); bottom: 0; background: #c5a67b; }
+        
+        .handle {
+            width: 16px; height: 90px;
+            background: #111;
+            position: absolute;
+            top: -30px; left: 22px;
+            border-radius: 15px;
+            transform: translateZ(0);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        /* 3D CRICKET BALL */
+        .ball-3d {
+            width: 45px;
+            height: 45px;
+            background: radial-gradient(circle at 30% 30%, #ff4d4d, #900 70%, #300);
+            border-radius: 50%;
+            position: absolute;
+            right: 100px;
+            top: 20%;
+            transform: translateZ(100px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            animation: ballMove 4s infinite ease-in-out;
+        }
+
+        @keyframes ballMove {
+            0%, 100% { transform: translate3d(0, 0, 100px) rotate(0deg); }
+            50% { transform: translate3d(-150px, -50px, 150px) rotate(180deg); }
+        }
+
+        /* MATCH INFO OVERLAY */
+        .match-card {
+            position: absolute;
+            bottom: 50px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px 50px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            transform: translateZ(50px);
+        }
+
+        .vs-container {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            font-size: 2rem;
+            font-weight: 900;
+        }
+
+        .team {
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .rcb { background: var(--rcb-red); }
+        .srh { background: var(--srh-orange); }
+
+        /* TICKER BAR */
+        .ticker {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: var(--rcb-red);
+            padding: 10px 0;
+            overflow: hidden;
+            border-bottom: 3px solid var(--ipl-gold);
+        }
+
+        .ticker-text {
+            display: inline-block;
+            white-space: nowrap;
+            font-weight: bold;
+            text-transform: uppercase;
+            animation: scroll 15s linear infinite;
+        }
+
+        @keyframes scroll {
+            from { transform: translateX(100%); }
+            to { transform: translateX(-100%); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ticker">
+        <div class="ticker-text">
+            🚨 BREAKING: IPL 2026 STARTS TOMORROW! --- MATCH 01: RCB vs SRH --- CHINNASWAMY STADIUM AT 100% CAPACITY --- TATA IPL 2026 KICKOFF 🚨
+        </div>
+    </div>
+
+    <div class="scene" id="scene">
+        <div class="bat-3d" id="bat">
+            <div class="handle"></div>
+            <div class="bat-face front"></div>
+            <div class="bat-face back"></div>
+            <div class="bat-face side-l"></div>
+            <div class="bat-face side-r"></div>
+        </div>
+
+        <div class="ball-3d"></div>
+
+        <div class="match-card">
+            <div class="vs-container">
+                <div class="team rcb">RCB</div>
+                <div style="color: var(--ipl-gold);">VS</div>
+                <div class="team srh">SRH</div>
+            </div>
+            <p style="margin-top: 15px; letter-spacing: 2px;">TOMORROW | 7:30 PM IST</p>
+        </div>
+    </div>
+
+    <script>
+        const bat = document.getElementById('bat');
+        const scene = document.getElementById('scene');
+
+        // Mouse Tracker for 3D Movement
+        scene.addEventListener('mousemove', (e) => {
+            let x = (window.innerWidth / 2 - e.pageX) / 20;
+            let y = (window.innerHeight / 2 - e.pageY) / 20;
+            
+            bat.style.transform = `rotateY(${x}deg) rotateX(${-y}deg) rotateZ(-15deg)`;
+        });
+
+        // Reset Gear
+        scene.addEventListener('mouseleave', () => {
+            bat.style.transform = `rotateY(20deg) rotateX(0deg) rotateZ(-15deg)`;
+        });
+    </script>
+</body>
+</html>
